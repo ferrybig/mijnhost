@@ -43,7 +43,7 @@ func (p *Provider) doAPIRequest(req *http.Request, result interface{}) error {
 		reqBody, _ = io.ReadAll(req.Body)
 		req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
 	}
-	fmt.Errorf("API request: method=%s url=%s headers=%v body=%s",
+	fmt.Printf("API request: method=%s url=%s headers=%v body=%s\n",
 		req.Method,
 		req.URL.String(),
 		req.Header,
