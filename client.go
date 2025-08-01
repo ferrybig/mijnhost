@@ -8,7 +8,10 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/libdns/libdns"
+	"go.uber.org/zap"
 )
 
 func (p *Provider) updateRecord(ctx context.Context, zone string, record libdns.Record) (SavedRecordResponse, error) {
@@ -37,7 +40,19 @@ func (p *Provider) doAPIRequest(req *http.Request, result interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("API-Key", p.ApiKey)
 
-	fmt.Printf("Request: %s %s\nHeaders: %v\n", req.Method, req.URL.String(), req.Header)
+	logger := caddy.Log()
+	var reqBody []byte
+	if req.Body != nil {
+		// Read and restore the request body for logging
+		reqBody, _ = io.ReadAll(req.Body)
+		req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+	}
+	logger.Info("API request",
+		zap.String("method", req.Method),
+		zap.String("url", req.URL.String()),
+		zap.Object("headers", caddyhttp.LoggableHTTPHeader{Header: req.Header}),
+		zap.ByteString("body", reqBody),
+	)
 
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
