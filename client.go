@@ -37,6 +37,8 @@ func (p *Provider) doAPIRequest(req *http.Request, result interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("API-Key", p.ApiKey)
 
+	fmt.Printf("Request: %s %s\nHeaders: %v\n", req.Method, req.URL.String(), req.Header)
+
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
