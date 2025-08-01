@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/libdns/mijnhost"
+	"github.com/ferrybig/mijnhost"
 
 	"github.com/joho/godotenv"
 	"github.com/libdns/libdns"
