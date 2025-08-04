@@ -43,20 +43,20 @@ type SavedRecordResponse struct {
 func (r *Record) libDNSRecord(zone string) libdns.Record {
 	return libdns.RR{
 		//ID:    fmt.Sprintf("%d", r.DNSRecord.ID),
-		Name:  libdns.RelativeName(r.Name, zone),
-		Type:  r.Type,
+		Name: libdns.RelativeName(r.Name, zone),
+		Type: r.Type,
 		Data: r.Value,
-		TTL:   time.Duration(r.TTL),
+		TTL:  time.Duration(r.TTL),
 	}
 }
 
 func (r *RecordResponse) libDNSRecord(zone string) libdns.Record {
 	return libdns.RR{
 		// ID:       fmt.Sprintf("%d", r.ID),
-		Name:  libdns.RelativeName(r.Name, zone),
-		Type:  r.Type,
+		Name: libdns.RelativeName(r.Name, zone),
+		Type: r.Type,
 		Data: r.Value,
-		TTL:   r.TTL,
+		TTL:  r.TTL,
 		// Priority: r.Priority,
 	}
 }
@@ -68,11 +68,16 @@ func libdnsToRecordRequest(r libdns.Record) RecordRequest {
 
 func libdnsToRecord(r libdns.Record) Record {
 	rr := r.RR()
+	ttl := int(rr.TTL)
+	// Limit TTL to a maximum of 86400 seconds (1 day), mijn.host does not allow larger TTL than the 32 bit signed integer limit, but making a TTL larger than 68 years seems wasteful
+	if ttl > 86400 {
+		ttl = 86400
+	}
 	return Record{
 		Type:  rr.Type,
 		Value: rr.Data,
 		Name:  rr.Name,
-		TTL:   int(rr.TTL),
+		TTL:   ttl,
 	}
 }
 
